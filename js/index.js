@@ -2,7 +2,25 @@ var elInput = document.querySelector('.js-input')
 var elList = document.querySelector('.js-last')
 
 var localData = localStorage.getItem('todos')
-var todos = JSON.parse(localData) ? JSON.parse(localData) : [];
+var todos = localData ? JSON.parse(localData) : [];
+
+
+ 
+let handDeleteTodo = (evt)=>{
+let filtredArr = []
+for (let i = 0; i < todos.length; i++) {
+if(todos[i].id !== evt.target.dataset.id){
+  filtredArr.push(todos[i])
+}
+}
+todos = filtredArr
+localStorage.setItem('todos', JSON.stringify(filtredArr))
+renderElements(filtredArr)
+}
+
+
+
+
 function creatTodo(todo){
   var elLi = document.createElement('li')
   var elCheckbox = document.createElement('input')
@@ -12,9 +30,12 @@ function creatTodo(todo){
   var elBtnDelete= document.createElement('button')
 
   elBtnEdit.textContent = 'Edit'
-  elBtnEdit.className = 'btn  btn-success me-2'
+  elBtnEdit.className = 'btn  btn-success me-2 edit'
   elBtnDelete.textContent = 'Delete'
-  elBtnDelete.className = 'btn btn-danger'
+  elBtnDelete.className = 'btn btn-danger delete'
+  elBtnDelete.dataset.id = todo.id
+
+
   elDiv.className = 'ms-auto'
   elTitle.className = 'm-0 ms-2 '
   elLi.className = ' border-bottom py-2 px-3 d-flex align-items-center'
@@ -22,8 +43,7 @@ function creatTodo(todo){
   elCheckbox.type='checkbox'
   elCheckbox.className = 'mb-0'
   
-  
-  console.log(elLi);
+ 
   elTitle.textContent = todo.title
   elLi.appendChild(elCheckbox)
   elLi.appendChild(elTitle)
@@ -54,5 +74,12 @@ elList.appendChild(elLi)
       elInput.value = null;
 }
 })
-renderElements(todos);
 
+elList.addEventListener('click', (evt)=>{
+  if(evt.target.matches('.delete')){
+    handDeleteTodo(evt)
+  } else if(evt.target.matches('.edit')){
+    prompt('uzgartirmoqchimisiz')
+  }
+})
+renderElements(todos);

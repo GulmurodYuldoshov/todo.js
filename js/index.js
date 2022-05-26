@@ -1,61 +1,64 @@
-var elInput = document.querySelector('.js-input')
-var elList = document.querySelector('.js-last')
+let elInput = document.querySelector('.js-input')
+let elList = document.querySelector('.js-last')
 
-var localData = localStorage.getItem('todos')
-var todos = localData ? JSON.parse(localData) : [];
+let localData = localStorage.getItem('todos')
+let todos = localData ? JSON.parse(localData) : [];
 
 
  
-let handDeleteTodo = (evt)=>{
-let filtredArr = []
-for (let i = 0; i < todos.length; i++) {
-if(todos[i].id !== evt.target.dataset.id){
-  filtredArr.push(todos[i])
-}
-}
-todos = filtredArr
-localStorage.setItem('todos', JSON.stringify(filtredArr))
-renderElements(filtredArr)
-}
+
+
 
 
 
 
 function creatTodo(todo){
-  var elLi = document.createElement('li')
-  var elCheckbox = document.createElement('input')
-  var elTitle = document.createElement('p')
-  var elDiv = document.createElement('div')
-  var elBtnEdit= document.createElement('button')
-  var elBtnDelete= document.createElement('button')
+  let elLi = document.createElement('li')
+  let elCheckbox = document.createElement('input')
+  let elTitle = document.createElement('p')
+  let elDiv = document.createElement('div')
+  let elBtnEdit= document.createElement('button')
+  let elBtnDelete= document.createElement('button')
 
   elBtnEdit.textContent = 'Edit'
   elBtnEdit.className = 'btn  btn-success me-2 edit'
+ 
+
   elBtnDelete.textContent = 'Delete'
   elBtnDelete.className = 'btn btn-danger delete'
-  elBtnDelete.dataset.id = todo.id
-
+ 
+  
 
   elDiv.className = 'ms-auto'
-  elTitle.className = 'm-0 ms-2 '
-  elLi.className = ' border-bottom py-2 px-3 d-flex align-items-center'
-  
+  elLi.className = ' border-bottom py-2 px-3 d-flex align-items-center item'
+  elLi.dataset.id = todo.id
+
+  elCheckbox.checked = todo.isComplated
   elCheckbox.type='checkbox'
-  elCheckbox.className = 'mb-0'
+  elCheckbox.className = 'mb-0 complated'
   
- 
+  
+  
   elTitle.textContent = todo.title
+  elTitle.className = 'm-0 ms-2 '
+
+  if(todo.isComplated){
+    elTitle.classList.add('text-decoration-line-through')
+    elTitle.classList.add('text-muted')
+    
+  }
+
   elLi.appendChild(elCheckbox)
   elLi.appendChild(elTitle)
   elLi.appendChild(elDiv)
   elDiv.appendChild(elBtnEdit)
   elDiv.appendChild(elBtnDelete)
-elList.appendChild(elLi)
+  elList.appendChild(elLi)
 }
 
- function renderElements(array){
-   elList.innerHTML=null
-   for (var i = 0; i < array.length; i++) {
+function renderElements(array){
+  elList.innerHTML=null
+  for (var i = 0; i < array.length; i++) {
     creatTodo(array[i])
    }
  }
@@ -72,14 +75,43 @@ elList.appendChild(elLi)
       renderElements(todos)
       localStorage.setItem('todos' , JSON.stringify(todos));
       elInput.value = null;
-}
+    }
+  })
+
+  
+  let handDeleteTodo = (item)=>{
+  let filtredArr = []
+  for (let i = 0; i < todos.length; i++) {
+  if(todos[i].id !== item.dataset.id){
+    filtredArr.push(todos[i])
+  }
+  }
+  todos = filtredArr
+  localStorage.setItem('todos', JSON.stringify(filtredArr))
+  renderElements(filtredArr)
+  }
+
+  let handEditTodo = (index) =>{
+    let elText = prompt(`O'zgartiring`,todos[index].title)
+    todos[index].title = elText
+    localStorage.setItem('todos', JSON.stringify(todos))
+    renderElements(todos)
+  }
+
+  let  handComplatedTodo = (evt,index) =>{
+    todos[index].isComplated = evt.target.checked
+    localStorage.setItem('todos', JSON.stringify(todos))
+    renderElements(todos)
+  }
+
+  elList.addEventListener('click', (evt)=>{
+    let elItem = evt.target.closest('.item')
+    let foundTodoIndex = todos.findIndex((element)=>element.id === elItem.dataset.id)
+    if(evt.target.matches('.delete')) return handDeleteTodo(elItem)
+    if(evt.target.matches('.edit')) return handEditTodo(foundTodoIndex)
+    if(evt.target.matches('.complated')) return handComplatedTodo(evt, foundTodoIndex)
+    
 })
 
-elList.addEventListener('click', (evt)=>{
-  if(evt.target.matches('.delete')){
-    handDeleteTodo(evt)
-  } else if(evt.target.matches('.edit')){
-    prompt('uzgartirmoqchimisiz')
-  }
-})
+
 renderElements(todos);
